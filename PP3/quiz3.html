@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logo Quiz</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="quiz.js"></script>
+</head>
+<body>
+
+    <h1>Logo Identification Quiz</h1>
+    <p>Identify the logos. You have <strong>15 minutes</strong> to complete the quiz.</p>
+
+    <div id="quiz-container"></div>
+
+    <button onclick="submitQuiz()">Submit Quiz</button>
+
+
+<script>
+    let questions = [];
+
+    function loadQuiz() {
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", "logos.xml", true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                parseXML(xhr.responseXML);
+            }
+        };
+        xhr.send();
+    }
+
+    function parseXML(xml) {
+        let questionNodes = xml.getElementsByTagName("question");
+
+        // Shuffle and select 5 random questions
+        let allQuestions = Array.from(questionNodes);
+        questions = allQuestions.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+        let quizContainer = document.getElementById("quiz-container");
+        quizContainer.innerHTML = ""; // Clear previous content
+
+        questions.forEach((question, index) => {
+            let imgSrc = question.getElementsByTagName("image")[0].textContent;
+            let options = question.getElementsByTagName("option");
+            let optionsArray = Array.from(options).map(option => option.textContent);
+
+            let questionHTML = `
+            <div class="quiz-item">
+                <img src="${imgSrc}" alt="Logo">
+                <br>
+                ${optionsArray.map(opt => `
+                    <label>
+                        <input type="radio" name="q${index}" value="${opt}"> ${opt}
+                    </label><br>
+                `).join('')}
+            </div>
+        `;
+            quizContainer.innerHTML += questionHTML;
+        });
+
+        // Start the 15-minute timer
+        startTimer(15 * 60);
+    }
+
+    function submitQuiz() {
+        let score = 0;
+
+        questions.forEach((question, index) => {
+            let correctAnswer = question.getElementsByTagName("answer")[0].textContent;
+            let selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+
+            if (selectedOption && selectedOption.value === correctAnswer) {
+                score += 4; // Each question is worth 4 marks
+            }
+        });
+
+        localStorage.setItem("score3", score);
+        window.location.href = "final.html";
+    }
+
+    function startTimer(seconds) {
+        let timerDisplay = document.createElement("p");
+        document.body.insertBefore(timerDisplay, document.getElementById("quiz-container"));
+
+        function updateTimer() {
+            let minutes = Math.floor(seconds / 60);
+            let secs = seconds % 60;
+            timerDisplay.textContent = `Time Left: ${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+
+            if (seconds > 0) {
+                seconds--;
+                setTimeout(updateTimer, 1000);
+            } else {
+                submitQuiz();
+            }
+        }
+
+        updateTimer();
+    }
+
+    loadQuiz();
+
+
+    loadXML(); // Load questions on page load
+</script>
+</body>
+</html>

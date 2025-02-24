@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css" />
+    <title>General Knowledge Quiz</title>
+</head>
+<body>
+    <h1>General Knowledge Quiz</h1>
+    <p id="timer">Time Left: 15:00</p>
+    <form id="quizForm">
+        <div id="quizContainer"></div>
+        <br>
+        <button type="button" onclick="submitQuiz()">Submit</button>
+    </form>
+    <p id="result"></p>
+
+    <script>
+        let questions = [];
+        let correctAnswers = {};
+        let timeLeft = 15 * 60; // 15 minutes in seconds
+
+        function loadXML() {
+            let xhr = new XMLHttpRequest();
+            xhr.open("GET", "questions.xml", true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    parseXML(xhr.responseXML);
+                }
+            };
+            xhr.send();
+        }
+
+        function parseXML(xml) {
+            let allQuestions = Array.from(xml.getElementsByTagName("question"));
+            questions = allQuestions.sort(() => 0.5 - Math.random()).slice(0, 5); // Pick 5 random questions
+
+            let quizContainer = document.getElementById("quizContainer");
+            quizContainer.innerHTML = "";
+
+            questions.forEach((q, index) => {
+                let text = q.getElementsByTagName("text")[0].textContent;
+                let options = Array.from(q.getElementsByTagName("option"));
+                let answer = q.getElementsByTagName("answer")[0].textContent;
+
+                correctAnswers["q" + index] = answer; // Store correct answer
+
+                let questionHTML = `<div class="question">
+                    <p><strong>Q${index + 1}:</strong> ${text}</p>`;
+
+                options.forEach((opt, optIndex) => {
+                    let optionText = opt.textContent;
+                    let optionValue = optionText.charAt(0); // A, B, C, or D
+                    questionHTML += `<label>
+                        <input type="radio" name="q${index}" value="${optionValue}"> ${optionText}
+                    </label><br>`;
+                });
+
+                questionHTML += `</div>`;
+                quizContainer.innerHTML += questionHTML;
+            });
+
+            startTimer();
+        }
+
+        function startTimer() {
+            let timerDisplay = document.getElementById("timer");
+            let interval = setInterval(() => {
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                timerDisplay.textContent = `Time Left: ${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    submitQuiz(); // Auto-submit on timeout
+                }
+
+                timeLeft--;
+            }, 1000);
+        }
+
+        function submitQuiz() {
+            let form = document.getElementById("quizForm");
+            let score = 0;
+
+            questions.forEach((q, index) => {
+                let selected = form.querySelector(`input[name="q${index}"]:checked`);
+                if (selected && selected.value === correctAnswers["q" + index]) {
+                    score += 2; // Each correct answer = 2 marks
+                }
+            });
+
+            localStorage.setItem("score2", score);
+            window.location.href = "quiz3.html";
+        }
+
+        loadXML(); // Load questions on page load
+    </script>
+</body>
+</html>

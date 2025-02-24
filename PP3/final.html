@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logo Quiz</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="quiz.js"></script>
+    <style>
+        button {
+            margin-left: 550px;
+            margin-top: 50px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Your Result</h1>
+    <div id="result"></div>
+
+    <script>
+        let score1 = parseFloat(localStorage.getItem("score"))||0;
+        let score2 = parseFloat(localStorage.getItem("score2")) || 0;
+        let score3 = parseFloat(localStorage.getItem("score3")) || 0;
+
+        let total = score1 + score2 + score3;
+        total = total*10 / 50;
+
+        let output = "";
+
+        if (total >= 9.5) {
+            output += `You are eligible to enter VIT Vellore with a score of ${total}!`;
+        }
+        else if (total >= 7.5 && total < 9.5) {
+            output += `You are eligible to enter VIT Chennai with a score of ${total}!`;
+        }
+        else if (total >= 6.5 && total < 7.5) {
+            output += `You are eligible for VIT Amravati with a score of ${total}!`;
+        }
+        else {
+            output += `We're really sorry, you do not qualify with a score of ${total}.`;
+        }
+
+        document.getElementById("result").innerHTML = output;
+    </script>
+</body>
+</html>

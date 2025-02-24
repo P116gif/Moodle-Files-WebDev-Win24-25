@@ -1,0 +1,36 @@
+h1{
+    text-align: center;
+}
+
+form{
+    display: block;
+    text-align: center;
+    margin:150px;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+}
+
+.question {
+    margin-bottom: 15px;
+}
+
+#timer {
+    font-size: 20px;
+    font-weight: bold;
+    color: red;
+}
+
+
+img {
+    width: 150px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.quiz-item {
+    text-align:center;
+    margin-bottom: 20px;
+}
